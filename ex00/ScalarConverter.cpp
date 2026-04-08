@@ -82,7 +82,7 @@ double parseValue(std::string s, Type t)
 	if (t == INT)
 	{
 		long long int i = atol(s.c_str());
-		d = static_cast<double>(i);
+		d = static_cast<long double>(i);
 		return d;
 	}
 	if (t == FLOAT)
@@ -119,31 +119,26 @@ double parseValue(std::string s, Type t)
 	return d;
 }
 
-void charConvert(long double d, Type t)
+void charConvert(long double d)
 {
-	if (d > 32 && d < 127)
-	{
-		if (t == CHAR)
-			std::cout << "char: " << static_cast<int>(d) << std::endl;
-		else
-		{
-			char c = static_cast<int>(d);
-			std::cout << "char: " << c << std::endl;
-		}
-	}
-	else if ((t != ERROR && (d < 33 && d >= 0)) || d == 127)
+	if (std::isnan(d) || std::isinf(d) || d < 0 || d > 127)
+		std::cout << "char: impossible" << std::endl;
+	else if ((d >= 0 && d < 32) || d == 127)
 		std::cout << "char: Non displayable" << std::endl;
 	else
-		std::cout << "char: Impossible" << std::endl;
+	{
+		char c = static_cast<char>(d);
+		std::cout << "char: " << c << std::endl;
+	}	
 }
 
 void intConvert(long double d)
 {
 	
-	if (d == std::numeric_limits<long double>::infinity())
-		std::cout << "int: " << d << std::endl;
+	if (std::isnan(d) || std::isinf(d))
+		std::cout << "int: impossible" << std::endl;
 	else if (d > std::numeric_limits<int>::max() || d < std::numeric_limits<int>::min())
-		std::cout << "int: Non displayable" << std::endl;
+		std::cout << "int: impossible" << std::endl;
 	else
 	{
 		int i = static_cast<int>(d);
@@ -153,26 +148,49 @@ void intConvert(long double d)
 
 void floatConvert(long double d)
 {
-	//if (d > std::numeric_limits<float>::max() || d < std::numeric_limits<float>::min())
-	//	std::cout << "float: Non displayable" << std::endl;
-	if (d == std::numeric_limits<float>::infinity())
-		std::cout << "int: " << d << std::endl;
+	if (std::isnan(d))
+		std::cout << "float: nanf" << std::endl;
+	else if (std::isinf(d))
+	{
+		if (d > 0)
+			std::cout << "float: +inff" << std::endl;
+		else
+			std::cout << "float: -inff" << std::endl;
+	}
+	//else if (d > std::numeric_limits<float>::max() || d < -std::numeric_limits<float>::max())
+	//	std::cout << "float: impossible" << std::endl;
 	else
 	{
 		float f = static_cast<float>(d);
-		std::cout << "float: " << f << "f" << std::endl;
+		if ((f - floor(f)) == 0)
+			std::cout << "float: " << f << ".0f" << std::endl;
+		else
+			std::cout << "float: " << f << "f" << std::endl;
 	}
 }
 
 void doubleConvert(long double d)
-{
-	//if (d > std::numeric_limits<double>::max() || d < std::numeric_limits<double>::min())
-	//	std::cout << "double: Non displayable" << std::endl;
-	//else
-	//{
+{	
+	if (std::isnan(d))
+		std::cout << "double: nan" << std::endl;
+	else if (std::isinf(d))
+	{
+		if (d > 0)
+			std::cout << "double: +inf" << std::endl;
+		else
+			std::cout << "double: -inf" << std::endl;
+	}
+	//else if (d > std::numeric_limits<double>::max() || d < -std::numeric_limits<double>::max())
+	//	std::cout << "double: impossible" << std::endl;
+	else
+	{
 		double f = static_cast<double>(d);
-		std::cout << "double: " << f << std::endl;
-	//}
+		if ((f - floor(f)) == 0)
+			std::cout << "double: " << f << ".0" << std::endl;
+		else
+			std::cout << "double: " << f << std::endl;
+	}
+	
 }
 
 void ScalarConverter::convert(std::string s)
@@ -191,12 +209,16 @@ void ScalarConverter::convert(std::string s)
 
 	d = parseValue(s, t);
 
-	std::cout << t << " => " << d << std::endl;
-
-	charConvert(d, t);
+	if (t == ERROR)
+	{
+		std::cout << "char: impossible" << std::endl
+			<< "int: impossible" << std::endl
+			<< "float: impossible" << std::endl
+			<< "double: impossible" << std::endl;
+		return ;
+	}
+	charConvert(d);
 	intConvert(d);
 	floatConvert(d);
 	doubleConvert(d);
-	
-	
 }

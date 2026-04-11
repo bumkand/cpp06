@@ -1,4 +1,4 @@
-NAME = convert
+NAME = serializer
 CXXFLAGS = -Wall -Werror -Wextra -std=c++98 -g
 CXX = c++
 
